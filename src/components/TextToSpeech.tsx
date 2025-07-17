@@ -1,75 +1,84 @@
-import { useState, useEffect } from 'react'
-import { Button } from "/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Play, StopCircle } from 'lucide-react'
+} from "@/components/ui/select";
+import { Play, StopCircle } from "lucide-react";
 
 export default function TextToSpeech() {
-  const [text, setText] = useState('')
-  const [language, setLanguage] = useState('en-US')
-  const [isSupported, setIsSupported] = useState(true)
-  const [isSpeaking, setIsSpeaking] = useState(false)
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
-  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null)
+  const [text, setText] = useState("");
+  const [language, setLanguage] = useState("en-US");
+  const [isSupported, setIsSupported] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] =
+    useState<SpeechSynthesisVoice | null>(null);
 
   useEffect(() => {
     // Check if the Web Speech API is supported
-    if (!('speechSynthesis' in window)) {
-      setIsSupported(false)
-      return
+    if (!("speechSynthesis" in window)) {
+      setIsSupported(false);
+      return;
     }
 
     // Load available voices
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices()
-      setVoices(availableVoices)
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
       // Set default voice to English if available
-      const defaultVoice = availableVoices.find(voice => voice.lang.includes('en')) || availableVoices[0]
-      setSelectedVoice(defaultVoice || null)
-    }
+      const defaultVoice =
+        availableVoices.find((voice) => voice.lang.includes("en")) ||
+        availableVoices[0];
+      setSelectedVoice(defaultVoice || null);
+    };
 
     // Some browsers need this event to populate voices
-    window.speechSynthesis.onvoiceschanged = loadVoices
-    loadVoices()
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
 
     return () => {
-      window.speechSynthesis.onvoiceschanged = null
-    }
-  }, [])
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
 
   const speak = () => {
-    if (!text.trim() || !selectedVoice) return
+    if (!text.trim() || !selectedVoice) return;
 
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.voice = selectedVoice
-    utterance.lang = selectedVoice.lang
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedVoice;
+    utterance.lang = selectedVoice.lang;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
-    window.speechSynthesis.speak(utterance)
-    setIsSpeaking(true)
-  }
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  };
 
   const stop = () => {
-    window.speechSynthesis.cancel()
-    setIsSpeaking(false)
-  }
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
 
   const handleVoiceChange = (lang: string) => {
-    const voice = voices.find(v => v.lang === lang)
+    const voice = voices.find((v) => v.lang === lang);
     if (voice) {
-      setSelectedVoice(voice)
-      setLanguage(lang)
+      setSelectedVoice(voice);
+      setLanguage(lang);
     }
-  }
+  };
 
   if (!isSupported) {
     return (
@@ -79,11 +88,12 @@ export default function TextToSpeech() {
         </CardHeader>
         <CardContent>
           <p className="text-destructive">
-            Your browser doesn't support the Web Speech API. Please try Chrome, Edge, or Safari.
+            Your browser doesn't support the Web Speech API. Please try Chrome,
+            Edge, or Safari.
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -135,5 +145,5 @@ export default function TextToSpeech() {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
