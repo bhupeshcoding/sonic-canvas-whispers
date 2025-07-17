@@ -68,7 +68,18 @@ Let it melt away with your breath.`);
   const generateAndPlay = async () => {
     const url = await generateSpeech();
     if (url && audioRef.current) {
-      audioRef.current.play();
+      audioRef.current.src = url;
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Playback failed:', error);
+        toast({
+          title: "Playback failed",
+          description: "Unable to play the audio. Please try downloading instead.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -81,6 +92,11 @@ Let it melt away with your breath.`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      toast({
+        title: "Download started",
+        description: "Your audio file is being downloaded.",
+      });
     }
   };
 
