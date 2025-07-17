@@ -1,7 +1,7 @@
-import TextToSpeechApp from "@/components/TextToSpeechApp";
+import TextToSpeech from "@/components/TextToSpeech";
 
 const Index = () => {
-  return <TextToSpeechApp />;
+  return <TextToSpeech />;
 };
 
 export default Index;
