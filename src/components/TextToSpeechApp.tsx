@@ -38,20 +38,20 @@ Let it melt away with your breath.`);
         description: "Please enter some text to convert to speech.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
     setIsLoading(true);
     try {
-      // Use the text-to-speech service to connect to FastAPI backend
       const blob = await textToSpeechService.generateSpeech({ text });
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
       
       toast({
         title: "Speech generated successfully!",
-        description: "Your audio is ready to play.",
+        description: "Your audio is ready.",
       });
+      return url;
     } catch (error) {
       toast({
         title: "Generation failed",
@@ -59,8 +59,28 @@ Let it melt away with your breath.`);
         variant: "destructive",
       });
       console.error('Error generating speech:', error);
+      return null;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateAndPlay = async () => {
+    const url = await generateSpeech();
+    if (url && audioRef.current) {
+      audioRef.current.play();
+    }
+  };
+
+  const generateAndDownload = async () => {
+    const url = await generateSpeech();
+    if (url) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'generated-speech.mp3';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -128,26 +148,48 @@ Let it melt away with your breath.`);
               </div>
             </div>
 
-            {/* Generate Button */}
-            <Button
-              onClick={generateSpeech}
-              disabled={isLoading || !text.trim()}
-              variant="ai"
-              size="lg"
-              className="w-full"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Generating Speech...
-                </>
-              ) : (
-                <>
-                  <Wand2 className="w-5 h-5" />
-                  Generate Speech
-                </>
-              )}
-            </Button>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                onClick={generateAndPlay}
+                disabled={isLoading || !text.trim()}
+                variant="ai"
+                size="lg"
+                className="w-full"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
+                    Read
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={generateAndDownload}
+                disabled={isLoading || !text.trim()}
+                variant="aiSecondary"
+                size="lg"
+                className="w-full"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    Download Audio
+                  </>
+                )}
+              </Button>
+            </div>
 
             {/* Audio Player */}
             {audioUrl && (
